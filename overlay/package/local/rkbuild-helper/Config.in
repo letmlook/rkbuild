@@ -1,0 +1,11 @@
+config BR2_PACKAGE_RKBUILD_HELPER
+	bool "rkbuild-helper"
+	depends on BR2_PACKAGE_BUSYBOX || BR2_PACKAGE_SYSTEMD
+	help
+	  rkbuild 自有辅助脚本集：
+	    - /usr/local/bin/rkbuild-info    显示版本与硬件信息
+	    - /usr/local/bin/rkbuild-doctor  环境健康检查
+	    - /etc/profile.d/rkbuild.sh      shell 启动钩子
+	    - /etc/rkbuild-release           版本号文件
+	    - /etc/motd                      登录欢迎信息
+	  默认开启。

@@ -1,0 +1,37 @@
+# build output
+dist/
+*.img
+*.img.xz
+*.tar.gz
+*.tar.xz
+*.tar
+*.sha256
+*.sha256sum
+
+# buildroot working tree (fetched by make fetch)
+dist/src/buildroot/
+dist/src/kernel/
+dist/src/u-boot/
+dist/src/rkbin/
+dist/src/mpp/
+dist/src/rknpu2/
+dist/src/gstreamer-rockchip/
+dist/src/prebuilts/
+dist/src/atk-sdk/
+
+# vendor overlay working copies
+dist/overlays-applied/
+
+# python
+__pycache__/
+*.pyc
+
+# editor
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# zcode local state (plans cache etc.)
+.zcode/

@@ -1,0 +1,17 @@
+config BR2_PACKAGE_RKBUILD_DOCKER_IMAGES
+	bool "rkbuild-docker-images (preload common images)"
+	depends on BR2_PACKAGE_RKBUILD_DOCKER_HELPER
+	help
+	  自动 docker save 一组常用镜像到 /usr/share/rkbuild/docker-images/，
+	  firstboot 由 rkbuild-docker-preload 自动 docker load。
+	  镜像列表在 BR2_PACKAGE_RKBUILD_DOCKER_IMAGES_LIST 中定义（空格分隔）。
+
+if BR2_PACKAGE_RKBUILD_DOCKER_IMAGES
+
+config BR2_PACKAGE_RKBUILD_DOCKER_IMAGES_LIST
+	string "image list (space-separated)"
+	default "alpine:latest busybox:latest hello-world"
+	help
+	  形如 "alpine:latest library/python:3.11-slim nginx:alpine"。
+
+endif

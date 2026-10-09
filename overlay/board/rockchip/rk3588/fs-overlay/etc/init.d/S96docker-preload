@@ -1,0 +1,20 @@
+#!/bin/sh
+# /etc/init.d/S96docker-preload —— firstboot 预置 docker 镜像
+#
+# 仅 firstboot（检测 /etc/firstboot 标记）执行一次；之后不再跑。
+
+case "$1" in
+    start)
+        if [ -f /etc/firstboot.done ]; then
+            exit 0
+        fi
+        if [ -x /usr/local/bin/rkbuild-docker-preload ]; then
+            /usr/local/bin/rkbuild-docker-preload
+        fi
+        touch /etc/firstboot.done
+        ;;
+    *)
+        echo "Usage: $0 start"
+        ;;
+esac
+exit 0

@@ -1,0 +1,38 @@
+# overlay/defconfig/rkbuild_rk3588_gui_defconfig
+#
+# rkbuild GUI 版本 defconfig。
+# 通过 #include 组合：rockchip 基础 + rkbuild 默认 + rkbuild GUI 专属 + rkbuild Docker 全套。
+# 被 scripts/apply-overlay.sh 拷贝到 buildroot 工作树的 configs/ 下，
+# 再由 `make rkbuild_rk3588_gui_defconfig` 触发 kconfig #include 合并。
+
+# --- 基础（rockchip rk3588）---
+#include "rockchip_rk3588_defconfig"
+
+# --- rkbuild 补充 ---
+#include "../fragments/rkbuild_base.config"
+#include "../fragments/rkbuild_init.config"
+#include "../fragments/rkbuild_default.config"
+#include "../fragments/rkbuild_gui.config"
+#include "../fragments/rkbuild_docker.config"
+#include "../fragments/rkbuild_mirrors.config"
+
+# --- Docker 必需内核配置（追加，不覆盖） ---
+BR2_LINUX_KERNEL_CONFIG_FRAGMENT_FILES="$(TOPDIR)/../board/rockchip/rk3588/kernel-fragment.config"
+
+# --- 自有 local package 路径（用 BR2_PRIMARY_SITE 指向 overlay；实际由 apply-overlay.sh rsync 到 package/local/） ---
+# 注：BR2_PRIMARY_SITE 与 Buildroot 包源无关；本地包路径在 package/rockchip/ 下被自动扫描，
+#     apply-overlay.sh 会把 overlay/package/local/* 复制到 buildroot/package/local/。
+#     我们的 Config.in 会 #include 自有包列表。
+
+# --- rootfs overlay（自有的 fs-overlay：docker daemon.json、init.d 启动脚本、etc 配置） ---
+BR2_ROOTFS_OVERLAY="board/rockchip/rk3588/fs-overlay"
+
+# --- rootfs image 大小 ---
+BR2_ROOTFS_POST_IMAGE_SCRIPT="$(TOPDIR)/../board/rockchip/rk3588/post-image.sh"
+
+# --- 输出路径 ---
+BR2_OUTPUT_DIR="$(TOPDIR)/../../output/rk3588-gui"
+BR2_DEFCONFIG="$(TOPDIR)/configs/rkbuild_rk3588_gui_defconfig"
+
+# --- 包日志等级 ---
+BR2_PACKAGE_LOG_BUFFER_SIZE=y

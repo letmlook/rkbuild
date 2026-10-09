@@ -1,0 +1,88 @@
+#!/bin/sh
+# /usr/local/bin/rkbuild-info —— 显示 rkbuild 系统版本与硬件信息
+#
+# 显示：rkbuild 版本、内核、U-Boot、Rockchip MPP、RKNPU、Docker、关键库版本
+
+RKBUILD_VERSION="$(cat /etc/rkbuild-release 2>/dev/null || echo unknown)"
+KERNEL="$(uname -r)"
+ARCH="$(uname -m)"
+SOC="$(cat /sys/firmware/devicetree/base/model 2>/dev/null | tr -d '\0' || echo unknown)"
+
+cat <<EOF
+========== rkbuild System Info ==========
+rkbuild version   : ${RKBUILD_VERSION}
+SoC               : ${SOC}
+Arch              : ${ARCH}
+Kernel            : ${KERNEL}
+EOF
+
+# U-Boot 版本（从 /etc/u-boot-release 读；Buildroot 默认不写，可选）
+if [ -f /etc/u-boot-release ]; then
+    echo "U-Boot           : $(cat /etc/u-boot-release)"
+fi
+
+# Docker
+echo
+echo "--- Docker ---"
+if command -v docker >/dev/null 2>&1; then
+    echo "docker cli       : $(docker --version 2>/dev/null)"
+    if [ -S /var/run/docker.sock ]; then
+        docker info 2>/dev/null | grep -E '^(Storage Driver|Server Version|Experimental|BuildKit|Runtimes|Cgroup Driver|Default Runtime)' | sed 's/^/  /'
+    else
+        echo "docker daemon    : not running (/etc/init.d/S95dockerd start)"
+    fi
+else
+    echo "docker cli       : not installed"
+fi
+
+# 其它 CLI 工具
+for cmd in nerdctl ctr crictl crun buildctl dive ctop lazydocker hadolint skopeo crane; do
+    if command -v "$cmd" >/dev/null 2>&1; then
+        printf "%-18s: %s\n" "$cmd" "$($cmd --version 2>&1 | head -1)"
+    fi
+done
+
+# NPU
+echo
+echo "--- NPU ---"
+if [ -f /sys/kernel/debug/rknpu/load ]; then
+    cat /sys/kernel/debug/rknpu/load | sed 's/^/  /'
+elif ls /dev/dri/rknpu 2>/dev/null >/dev/null; then
+    echo "  rknpu device present: /dev/dri/rknpu"
+else
+    echo "  rknpu not detected"
+fi
+
+# MPP
+if command -v mpptest >/dev/null 2>&1; then
+    echo
+    echo "--- MPP ---"
+    mpptest --help 2>&1 | head -3 | sed 's/^/  /'
+fi
+
+# Python
+echo
+echo "--- Python ---"
+if command -v python3 >/dev/null 2>&1; then
+    python3 --version | sed 's/^/  /'
+fi
+
+# 关键库
+echo
+echo "--- Key libs ---"
+for lib in libopenssl libmbedtls libcurl libsqlite3 libwebsockets libmosquitto; do
+    if ldconfig -p 2>/dev/null | grep -q "$lib\.so"; then
+        v=$(ldconfig -v 2>/dev/null | grep "$lib\.so" | head -1 | awk '{print $NF}')
+        printf "  %-18s %s\n" "$lib" "$v"
+    fi
+done
+
+# Qt
+if command -v qmake6 >/dev/null 2>&1; then
+    echo
+    echo "--- Qt ---"
+    qmake6 -query QT_VERSION | sed 's/^/  qt6: /'
+fi
+
+echo
+echo "========================================"

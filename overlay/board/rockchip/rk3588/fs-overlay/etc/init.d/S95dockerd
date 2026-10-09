@@ -1,0 +1,66 @@
+#!/bin/sh
+# /etc/init.d/S95dockerd —— BusyBox init 风格的 dockerd 启动脚本
+#
+# 行为：
+#   - 加载 cgroup 必要模块
+#   - 启动 dockerd（rootful）
+#   - 等待 socket 就绪
+#
+# systemd 用户请用 /etc/systemd/system/multi-user.target.wants/docker.service
+
+DAEMON=/usr/bin/dockerd
+PIDFILE=/var/run/docker.pid
+DOCKER_SOCKET=/var/run/docker.sock
+DAEMON_ARGS="--data-root=/var/lib/docker --exec-root=/var/run/docker --pidfile=$PIDFILE --host=unix://$DOCKER_SOCKET"
+
+case "$1" in
+    start)
+        printf 'Starting dockerd: '
+        # cgroup v2
+        if [ -f /proc/cgroups ] && grep -q '^2:' /proc/cgroups 2>/dev/null; then
+            :
+        fi
+        # 加载 overlay/netfilter 模块
+        for mod in overlay br_netfilter vxlan ip_tables iptable_nat iptable_filter nf_tables nfnetlink; do
+            modprobe $mod 2>/dev/null || true
+        done
+        # 启动 cgroups hierarchy 2（如果没自动挂载）
+        mount -t cgroup2 none /sys/fs/cgroup 2>/dev/null || true
+
+        # 启动 dockerd
+        if [ ! -x "$DAEMON" ]; then
+            echo "dockerd not found, skip"
+            exit 0
+        fi
+
+        start-stop-daemon -S -b -m -p "$PIDFILE" --exec $DAEMON -- $DAEMON_ARGS
+        # 等待 socket
+        for i in $(seq 1 30); do
+            [ -S "$DOCKER_SOCKET" ] && break
+            sleep 0.5
+        done
+        echo "OK"
+        ;;
+    stop)
+        printf 'Stopping dockerd: '
+        start-stop-daemon -K -q -p "$PIDFILE"
+        echo "OK"
+        ;;
+    restart)
+        $0 stop
+        $0 start
+        ;;
+    status)
+        if [ -S "$DOCKER_SOCKET" ]; then
+            echo "dockerd is running (socket: $DOCKER_SOCKET)"
+        else
+            echo "dockerd is not running"
+        fi
+        ;;
+    *)
+        echo "Usage: $0 {start|stop|restart|status}"
+        exit 1
+        ;;
+esac
+
+exit 0

@@ -1,0 +1,26 @@
+config BR2_PACKAGE_TFLITE_DELEGATE_RKNPU2
+	bool "tflite (RKNN delegate)"
+	depends on BR2_PACKAGE_RKNPU2
+	help
+	  TensorFlow Lite 的 RKNN delegate，让 .tflite 模型通过 RKNN 在 NPU 上推理。
+	  基于 https://github.com/airockchip/TensorflowLite-bin 的预编译包
+	  或自行编译 tflite + rknpu delegate。
+
+if BR2_PACKAGE_TFLITE_DELEGATE_RKNPU2
+
+choice
+	prompt "tflite-rknpu2 distribution"
+	default BR2_PACKAGE_TFLITE_DELEGATE_RKNPU2_PREBUILT
+
+config BR2_PACKAGE_TFLITE_DELEGATE_RKNPU2_PREBUILT
+	bool "use prebuilt binaries"
+	help
+	  从 airockchip/TensorflowLite-bin 下载预编译 .tar 包。
+
+config BR2_PACKAGE_TFLITE_DELEGATE_RKNPU2_SOURCE
+	bool "build from source"
+	help
+	  从源码编译（耗时较长）。
+endchoice
+
+endif

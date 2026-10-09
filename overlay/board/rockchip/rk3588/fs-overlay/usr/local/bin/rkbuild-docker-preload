@@ -1,0 +1,39 @@
+#!/bin/sh
+# /usr/local/bin/rkbuild-docker-preload —— firstboot 自动 docker load 预置镜像
+#
+# 扫描 /usr/share/rkbuild/docker-images/*.tar 下的镜像包，逐个 docker load。
+# 由 /etc/init.d/S96docker-preload 调用。
+
+set -e
+
+IMG_DIR="${RKBUILD_DOCKER_IMAGES_DIR:-/usr/share/rkbuild/docker-images}"
+LOG="/var/log/rkbuild-docker-preload.log"
+
+if [ ! -d "$IMG_DIR" ]; then
+    echo "No images directory: $IMG_DIR" >&2
+    exit 0
+fi
+
+# 等待 dockerd 起来
+for i in $(seq 1 60); do
+    if [ -S /var/run/docker.sock ] && docker info >/dev/null 2>&1; then
+        break
+    fi
+    sleep 1
+done
+
+if ! docker info >/dev/null 2>&1; then
+    echo "Docker daemon not ready, skip preload" >&2
+    exit 0
+fi
+
+count=0
+for tar in "$IMG_DIR"/*.tar "$IMG_DIR"/*.tar.gz "$IMG_DIR"/*.tgz; do
+    [ -e "$tar" ] || continue
+    echo "[$(date)] loading $tar" >> "$LOG"
+    docker load -i "$tar" >> "$LOG" 2>&1 || true
+    count=$((count + 1))
+done
+
+echo "[$(date)] preloaded $count images" >> "$LOG"
+exit 0

@@ -1,0 +1,33 @@
+# overlay/defconfig/rkbuild_rk3588_headless_defconfig
+#
+# rkbuild Headless 版本 defconfig。
+# 不包含 GUI 专属包（Qt6 / wayland / weston / mali / sdl2 / mesa3 / libinput / tslib）；
+# 但保留：ffmpeg + rockchip-mpp（服务端转码）、rknpu2 + onnxruntime-rknn（AI 推理）、
+#      所有网络 / 工具 / 库 / Docker 全套。
+
+# --- 基础 ---
+#include "rockchip_rk3588_defconfig"
+
+# --- rkbuild 补充 ---
+#include "../fragments/rkbuild_base.config"
+#include "../fragments/rkbuild_init.config"
+#include "../fragments/rkbuild_default.config"
+#include "../fragments/rkbuild_docker.config"
+#include "../fragments/rkbuild_mirrors.config"
+
+# 注：GUI 变体独有的 rkbuild_gui.config 在此 defconfig 中不包含。
+
+# --- Docker 必需内核配置（追加） ---
+BR2_LINUX_KERNEL_CONFIG_FRAGMENT_FILES="$(TOPDIR)/../board/rockchip/rk3588/kernel-fragment.config"
+
+# --- rootfs overlay（仍然注入 docker daemon.json 与 init.d 启动） ---
+BR2_ROOTFS_OVERLAY="board/rockchip/rk3588/fs-overlay"
+
+# --- rootfs image 大小 ---
+BR2_ROOTFS_POST_IMAGE_SCRIPT="$(TOPDIR)/../board/rockchip/rk3588/post-image.sh"
+
+# --- 输出路径 ---
+BR2_OUTPUT_DIR="$(TOPDIR)/../../output/rk3588-headless"
+
+# --- 包日志等级 ---
+BR2_PACKAGE_LOG_BUFFER_SIZE=y

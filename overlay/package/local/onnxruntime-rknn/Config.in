@@ -1,0 +1,20 @@
+config BR2_PACKAGE_ONNXRUNTIME_RKNN
+	bool "onnxruntime (RKNN backend)"
+	depends on BR2_PACKAGE_RKNPU2
+	help
+	  ONNX Runtime 的 RKNN 后端实现，基于 Rockchip 官方 airockchip/onnxruntime。
+	  提供 C/C++ API，可加载 .onnx 模型并通过 RKNN 在 NPU 上推理。
+	  默认从 https://github.com/airockchip/onnxruntime 检出 master 分支。
+
+	  依赖：rknpu2, libcurl (下载模型), pthread.
+	  安装路径：/usr/lib/onnxruntime-rknn/
+
+if BR2_PACKAGE_ONNXRUNTIME_RKNN
+
+config BR2_PACKAGE_ONNXRUNTIME_RKNN_VERSION
+	string "onnxruntime-rknn version"
+	default "master"
+	help
+	  git ref (branch/tag/commit) for airockchip/onnxruntime.
+
+endif

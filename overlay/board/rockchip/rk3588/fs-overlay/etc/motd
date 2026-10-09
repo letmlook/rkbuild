@@ -1,0 +1,19 @@
+Welcome to rkbuild (RK3588 Buildroot by rkb)
+
+Vendor    : __VENDOR__
+Variant   : __VARIANT__
+Board     : __BOARD__
+Release   : __RKBUILD_RELEASE__
+
+常用命令：
+  rkbuild-info           显示版本与硬件信息
+  docker info            Docker 状态
+  ip a / ip route        网络
+  systemctl status xxx   systemd 服务
+  /etc/init.d/S95dockerd start   busybox 启动 dockerd
+
+提示：Docker 完整功能（rootless/buildkit/compose/dive/ctop/hadolink 等）已默认编译。
+     AI 推理已默认安装 RKNN runtime。
+     GUI 版本默认含 Qt6 EGLFS + wayland/weston。
+
+文档：/usr/share/rkbuild/README.md 或 https://github.com/yourorg/rkbuild

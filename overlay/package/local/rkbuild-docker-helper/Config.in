@@ -1,0 +1,10 @@
+config BR2_PACKAGE_RKBUILD_DOCKER_HELPER
+	bool "rkbuild-docker-helper"
+	depends on BR2_PACKAGE_DOCKER_ENGINE
+	help
+	  Docker 相关辅助脚本：
+	    - /usr/local/bin/rkbuild-docker-info
+	    - /usr/local/bin/rkbuild-docker-preload
+	    - /etc/init.d/S96docker-preload
+	    - /usr/share/rkbuild/docker-images/ 预置镜像目录占位
+	  默认开启。

@@ -1,0 +1,37 @@
+{
+  "storage-driver": "overlay2",
+  "iptables": true,
+  "ip-forward": true,
+  "ip-masq": true,
+  "ipv6": false,
+  "live-restore": true,
+  "userland-proxy": false,
+  "log-driver": "json-file",
+  "log-opts": {
+    "max-size": "10m",
+    "max-file": "3"
+  },
+  "default-runtime": "runc",
+  "runtimes": {
+    "crun": {
+      "path": "/usr/bin/crun"
+    },
+    "runc": {
+      "path": "/usr/sbin/runc"
+    }
+  },
+  "features": {
+    "buildkit": true
+  },
+  "experimental": true,
+  "rootless": true,
+  "metrics-addr": "127.0.0.1:9323",
+  "selinux-enabled": false,
+  "default-ulimits": {
+    "nofile": {
+      "Name": "nofile",
+      "Hard": 65535,
+      "Soft": 65535
+    }
+  }
+}

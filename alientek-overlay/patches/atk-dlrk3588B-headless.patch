@@ -1,0 +1,69 @@
+diff --git a/device/rockchip/rk3588/atk_dlrk3588B/buildroot/atk_dlrk3588B_defconfig b/device/rockchip/rk3588/atk_dlrk3588B/buildroot/atk_dlrk3588B_defconfig
+index 0000000..1111111 100644
+--- a/device/rockchip/rk3588/atk_dlrk3588B/buildroot/atk_dlrk3588B_defconfig
++++ b/device/rockchip/rk3588/atk_dlrk3588B/buildroot/atk_dlrk3588B_defconfig
+@@ -1,12 +1,40 @@
+ # alientek SDK atk-dlrk3588B_defconfig —— headless 变体 patch（占位）
+ #
+ # 本 patch 是占位实现：
+ #   - 实际行号取决于你下载的 SDK tarball 版本
+ #   - 用户需根据 dist/src/atk-sdk/device/rockchip/rk3588/atk_dlrk3588B/buildroot/atk_dlrk3588B_defconfig
+ #     实际内容用 `diff -u` 生成真正可用的 patch
+ #
+ # 本 patch 演示了 headless 模式下需要做的关键修改：
+ #   1. 关闭 Qt5 / weston / wayland / mali 等 GUI 包
+ #   2. 开启 dockerd / containerd / runc / Docker 全栈
+ #   3. 追加 Docker 必需的内核配置
+
+ # ===== 关闭 GUI =====
+-BR2_PACKAGE_QT5=y
+-BR2_PACKAGE_WAYLAND=y
+-BR2_PACKAGE_WESTON=y
+-BR2_PACKAGE_MALI=y
+-BR2_PACKAGE_LIBINPUT=y
+-BR2_PACKAGE_TSLIB=y
++# BR2_PACKAGE_QT5 is not set
++# BR2_PACKAGE_WAYLAND is not set
++# BR2_PACKAGE_WESTON is not set
++# BR2_PACKAGE_MALI is not set
++# BR2_PACKAGE_LIBINPUT is not set
++# BR2_PACKAGE_TSLIB is not set
++# BR2_PACKAGE_SDL2 is not set
++# BR2_PACKAGE_MESA3D is not set
+
+ # ===== 开启 Docker =====
++BR2_PACKAGE_DOCKER_ENGINE=y
++BR2_PACKAGE_DOCKER_ENGINE_DRIVER_OVERLAY2=y
++BR2_PACKAGE_DOCKER_ENGINE_DRIVER_BTRFS=y
++BR2_PACKAGE_DOCKER_ENGINE_DRIVER_DEVICEMAPPER=y
++BR2_PACKAGE_DOCKER_ENGINE_DRIVER_VFS=y
++BR2_PACKAGE_DOCKER_ENGINE_SECCOMP=y
++BR2_PACKAGE_DOCKER_ENGINE_APPARMOR=y
++BR2_PACKAGE_DOCKER_ENGINE_ROOTLESS=y
++BR2_PACKAGE_DOCKER_ENGINE_EXPERIMENTAL=y
++BR2_PACKAGE_DOCKER_ENGINE_BUILDKIT=y
++BR2_PACKAGE_DOCKER_CLI=y
++BR2_PACKAGE_CONTAINERD=y
++BR2_PACKAGE_CONTAINERD_BTRFS=y
++BR2_PACKAGE_CONTAINERD_CRI=y
++BR2_PACKAGE_RUNC=y
++BR2_PACKAGE_CRUN=y
++BR2_PACKAGE_BUILDKIT=y
++BR2_PACKAGE_DOCKER_BUILDX=y
++BR2_PACKAGE_DOCKER_COMPOSE=y
++BR2_PACKAGE_DOCKER_COMPOSE_V2=y
++BR2_PACKAGE_DIVE=y
++BR2_PACKAGE_CTOP=y
++BR2_PACKAGE_LAZYDOCKER=y
++BR2_PACKAGE_HADOLINT=y
++BR2_PACKAGE_SKOPEO=y
++BR2_PACKAGE_NERDCTL=y
++BR2_PACKAGE_CTR=y
++BR2_PACKAGE_CRICTL=y
++BR2_PACKAGE_SLIRP4NETNS=y
++BR2_PACKAGE_FUSE_OVERLAYFS=y
++BR2_PACKAGE_APPARMOR=y
++BR2_PACKAGE_APPARMOR_UTILS=y
+
+ # ===== Docker 必需内核配置（追加到 board 的 kernel fragment） =====
+ # 见 rkbuild/overlay/fragments/rkbuild_docker_kernel.config
