@@ -64,36 +64,22 @@ make fetch
 make build
 ```
 
-`make fetch` 自动应用 `alientek-overlay/patches/atk-dlrk3588B-headless.patch`。
+`make fetch` 自动运行 `alientek-overlay/patches/atk-dlrk3588B-headless.sh`，
+用 `sed -i` 按包名修改 defconfig：
 
-### 首次生成 headless patch
+- 关闭 GUI 包（Qt5/Wayland/Weston/Mali/Mesa3D/SDL2/TSlib/libinput 等）
+- 追加 Docker 全栈、RKNN、rkbuild-helper、headless 必备包
 
-当前 `patches/atk-dlrk3588B-headless.patch` 是占位。首次 fetch 后：
+**不依赖行号、不依赖上下文匹配**，SDK 升级后只要包名没变仍可工作；脚本幂等可重复跑。
 
-```bash
-cd dist/src/atk-sdk
+### 自定义注入
 
-# 备份原 defconfig
-cp device/rockchip/rk3588/atk_dlrk3588B/buildroot/atk_dlrk3588B_defconfig \
-   /tmp/before.config
+如需新增包，编辑 `alientek-overlay/patches/atk-dlrk3588B-headless.sh`：
 
-# 编辑去掉 GUI / 加入 Docker
-vim /tmp/before.config
-# （注释 BR2_PACKAGE_QT5 / WAYLAND / WESTON / MALI / LIBINPUT / TSLIB / SDL2 / MESA3D
-#   加上 BR2_PACKAGE_DOCKER_ENGINE / CONTAINERD / RUNC / CRUN / BUILDKIT /
-#   DOCKER_BUILDX / DOCKER_COMPOSE / DIVE / CTOP / LAZYDOCKER / HADOLINT /
-#   SKOPEO / NERDCTL / CTR / CRICTL / APPARMOR / RKNPU2 / RKBUILD_HELPER 等）
+- 要关的 GUI 包：加到 `GUI_REMOVE` 数组
+- 要追加的包：加到 `APPEND_LINES` 数组
 
-# 生成 patch
-diff -u /tmp/before.config \
-        device/rockchip/rk3588/atk_dlrk3588B/buildroot/atk_dlrk3588B_defconfig \
-        > ../../../alientek-overlay/patches/atk-dlrk3588B-headless.patch
-
-# 重跑
-make clean
-make fetch    # 自动应用新 patch
-make build
-```
+不需要重新生成 patch 或关心行号。
 
 ## 输出路径
 

@@ -64,8 +64,15 @@
 - Security：SECCOMP、SECCOMP_FILTER、SECURITY、SECURITY_APPARMOR、SECURITY_SELINUX
 - Misc：CHECKPOINT_RESTORE、USERFAULTFD、MEMBARRIER、RSEQ
 
-### 1.7 预置 Docker 镜像（可选）
-`overlay/package/local/rkbuild-docker-images/` —— busybox / alpine / hello-world / python / nginx tar 包，firstboot 由 `rkbuild-docker-preload` 自动 `docker load`。
+### alientek headless 支持
+
+- alientek SDK tarball 用 `./build.sh atk-dlrk3588B` 入口，无法 kconfig 注入
+- 提供 `alientek-overlay/patches/atk-dlrk3588B-headless.sh` —— **sed 注入脚本**（不用 patch，避免行号/上下文漂移）
+  - 关闭 GUI 包：Qt5/Wayland/Weston/Mali/Mesa3D/SDL2/TSlib/libinput 等
+  - 追加 Docker 全栈、RKNN、rkbuild-helper、headless 必备包
+- `scripts/fetch-alientek.sh` 检测 `VARIANT=headless` 时自动运行该脚本
+- 脚本幂等，SDK 升级后只要包名不变仍可工作
+- 文档说明：用户也可手改 SDK 内的 `<board>_defconfig` 实现更精细裁剪
 
 ## 2. 默认软件清单（两变体共有）
 

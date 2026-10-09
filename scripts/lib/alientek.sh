@@ -90,26 +90,24 @@ rkb_alien_verify_sha256() {
     rkb_log info "SHA256 校验通过：$file"
 }
 
-# ---- 应用 alientek headless patch ----
+# ---- 应用 alientek headless 配置注入 ----
+# 不再用 patch；改用 alientek-overlay/patches/<board>-headless.sh 直接 sed。
+# 优势：
+#   - 不依赖行号、不依赖上下文匹配
+#   - SDK 升级后只要包名没变仍可工作
+#   - 幂等：可重复跑
 rkb_alien_apply_headless_patch() {
     local sdk_dir="$1" board="$2"
-    local patch="${ALIEN_DIR}/patches/${board}-headless.patch"
-    if [[ ! -f "$patch" ]]; then
-        rkb_warn "未找到 headless patch：$patch（跳过；alientek GUI 模式默认）"
+    local script="${ALIEN_DIR}/patches/${board}-headless.sh"
+    if [[ ! -f "$script" ]]; then
+        rkb_warn "未找到 headless 注入脚本：$script（跳过；alientek GUI 模式默认）"
         return 0
     fi
     if [[ "${VARIANT}" != "headless" ]]; then
-        rkb_log info "VARIANT=${VARIANT}，跳过 headless patch"
+        rkb_log info "VARIANT=${VARIANT}，跳过 headless 注入"
         return 0
     fi
-    rkb_log info "应用 headless patch：$patch"
-    (
-        cd "$sdk_dir"
-        # patch -p1 若失败可加 --dry-run 看一眼
-        if ! patch -p1 --dry-run < "$patch" >/dev/null 2>&1; then
-            rkb_die "headless patch dry-run 失败：$patch。请人工核对 SDK 版本与 patch 是否匹配"
-        fi
-        patch -p1 < "$patch"
-    )
-    rkb_ok "headless patch 已应用"
+    rkb_log info "应用 headless 注入脚本：$script"
+    sh "$script" "$sdk_dir"
+    rkb_ok "headless 注入已完成"
 }
