@@ -1,0 +1,12 @@
+# package/local/Config.in —— rkbuild 自有 local package 聚合入口
+#
+# 由 apply-overlay.sh 同步到 buildroot 工作树；
+# buildroot 的 package/Config.in 末尾会 `source "package/local/Config.in"` 引入。
+#
+# 注：不使用 menu/endmenu 包裹，避免 kconfig 在 source 嵌套时的 "different file" 错误。
+
+source "package/local/rkbuild-helper/Config.in"
+source "package/local/onnxruntime-rknn/Config.in"
+source "package/local/tflite-delegate-rknpu2/Config.in"
+source "package/local/rkbuild-docker-helper/Config.in"
+source "package/local/rkbuild-docker-images/Config.in"

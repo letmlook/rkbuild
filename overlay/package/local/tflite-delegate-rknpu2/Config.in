@@ -3,24 +3,13 @@ config BR2_PACKAGE_TFLITE_DELEGATE_RKNPU2
 	depends on BR2_PACKAGE_RKNPU2
 	help
 	  TensorFlow Lite 的 RKNN delegate，让 .tflite 模型通过 RKNN 在 NPU 上推理。
-	  基于 https://github.com/airockchip/TensorflowLite-bin 的预编译包
-	  或自行编译 tflite + rknpu delegate。
-
-if BR2_PACKAGE_TFLITE_DELEGATE_RKNPU2
-
-choice
-	prompt "tflite-rknpu2 distribution"
-	default BR2_PACKAGE_TFLITE_DELEGATE_RKNPU2_PREBUILT
-
-config BR2_PACKAGE_TFLITE_DELEGATE_RKNPU2_PREBUILT
-	bool "use prebuilt binaries"
-	help
-	  从 airockchip/TensorflowLite-bin 下载预编译 .tar 包。
+	  基于 https://github.com/airockchip/TensorflowLite-bin 预编译包或自编译。
+	  注：原计划用 choice/endchoice 区分 prebuilt/source，但 merge_config.sh 对 sourced 文件
+	  报 'different file' 错误；先用单选项简化，默认走预编译。
 
 config BR2_PACKAGE_TFLITE_DELEGATE_RKNPU2_SOURCE
-	bool "build from source"
+	bool "build tflite-rknpu2 from source"
+	depends on BR2_PACKAGE_TFLITE_DELEGATE_RKNPU2
 	help
-	  从源码编译（耗时较长）。
-endchoice
-
-endif
+	  默认走 airockchip/TensorflowLite-bin 预编译包；勾选此项改为从源码编译。
+	  源码编译耗时较长（数十分钟）。

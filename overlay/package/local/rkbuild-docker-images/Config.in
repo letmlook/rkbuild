@@ -6,12 +6,9 @@ config BR2_PACKAGE_RKBUILD_DOCKER_IMAGES
 	  firstboot 由 rkbuild-docker-preload 自动 docker load。
 	  镜像列表在 BR2_PACKAGE_RKBUILD_DOCKER_IMAGES_LIST 中定义（空格分隔）。
 
-if BR2_PACKAGE_RKBUILD_DOCKER_IMAGES
-
 config BR2_PACKAGE_RKBUILD_DOCKER_IMAGES_LIST
 	string "image list (space-separated)"
 	default "alpine:latest busybox:latest hello-world"
+	depends on BR2_PACKAGE_RKBUILD_DOCKER_IMAGES
 	help
 	  形如 "alpine:latest library/python:3.11-slim nginx:alpine"。
-
-endif

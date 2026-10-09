@@ -57,16 +57,36 @@ rkb_section "rknpu2 → ${SRC_DIR}/rknpu2"
 rkb_git_clone "$RKNPU2_REPO" "${SRC_DIR}/rknpu2" "$RKNPU2_BRANCH"
 
 # 7) toolchain
+# 注：URL 可能指向 GitHub raw / Mega.nz / 直链；自动用 gh-proxy 镜像
 if [[ -n "$TOOLCHAIN_URL" ]]; then
     rkb_section "toolchain"
     mkdir -p "${SRC_DIR}/prebuilts/gcc/linux-x86/aarch64"
     archive_name="$(basename "$TOOLCHAIN_URL")"
-    rkb_download "$TOOLCHAIN_URL" "${SRC_DIR}/${archive_name}"
-    # 已解压则跳过
-    if ! ls "${SRC_DIR}/prebuits/gcc/linux-x86/aarch64"/gcc-arm-* >/dev/null 2>&1; then
-        rkb_log info "解压 toolchain 到 ${SRC_DIR}/prebuilts/gcc/linux-x86/aarch64/"
-        tar -xJf "${SRC_DIR}/${archive_name}" -C "${SRC_DIR}/prebuilts/gcc/linux-x86/aarch64/" --strip-components=1 \
-            || rkb_warn "toolchain 解压失败；请检查路径"
+    archive_path="${SRC_DIR}/${archive_name}"
+    # GitHub raw 走 gh-proxy
+    fetch_url="$TOOLCHAIN_URL"
+    if [[ "$fetch_url" == *"github.com"* && "$fetch_url" != *"gh-proxy.com"* ]]; then
+        fetch_url="https://gh-proxy.com/${fetch_url}"
+        rkb_log info "GitHub URL detected, routing via gh-proxy"
+    fi
+    rkb_download "$fetch_url" "$archive_path"
+
+    # 解压：FriendlyARM tarball 是 opt/FriendlyARM/toolchain/<name>/
+    # 解压到 prebuilts/gcc/linux-x86/aarch64/ 后会得到 prebuilts/gcc/linux-x86/aarch64/opt/FriendlyARM/toolchain/11.3-aarch64/
+    # 故用 --strip-components 把顶层 'opt/' 砍掉，最后形成 prebuilts/gcc/linux-x86/aarch64/FriendlyARM/toolchain/11.3-aarch64/
+    case "$archive_path" in
+        *.tar.xz) tar -xJf "$archive_path" -C "${SRC_DIR}/prebuilts/gcc/linux-x86/aarch64/" --strip-components=1 ;;
+        *.tar.bz2) tar -xjf "$archive_path" -C "${SRC_DIR}/prebuilts/gcc/linux-x86/aarch64/" --strip-components=1 ;;
+        *.tar.gz) tar -xzf "$archive_path" -C "${SRC_DIR}/prebuilts/gcc/linux-x86/aarch64/" --strip-components=1 ;;
+        *) rkb_warn "未知的 toolchain 压缩格式：$archive_path" ;;
+    esac
+
+    # 验证
+    if [[ -d "${SRC_DIR}/prebuilts/gcc/linux-x86/aarch64/FriendlyARM/toolchain" ]]; then
+        rkb_ok "toolchain 解压成功（FriendlyARM 布局）"
+    else
+        rkb_log info "解压后目录："
+        ls -la "${SRC_DIR}/prebuilts/gcc/linux-x86/aarch64/" | head
     fi
 fi
 
