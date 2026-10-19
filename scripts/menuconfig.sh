@@ -14,6 +14,11 @@ export RKB_ROOT
 # shellcheck source=./common.sh
 source "${SCRIPT_DIR}/common.sh"
 
+if [[ "$ROOTFS" == "ubuntu" ]]; then
+    rkb_log info "Ubuntu 流程不使用 menuconfig；软件包列表见 ubuntu/packages/*.list"
+    exit 0
+fi
+
 if [[ "$VENDOR" == "alientek" ]]; then
     rkb_log info "alientek 流派无 menuconfig；编辑 SDK 内的 defconfig"
     exit 0

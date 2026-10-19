@@ -1,13 +1,20 @@
 # 交叉编译 SDK 使用
 
-rkbuild 产出的 SDK tarball 内含 aarch64 交叉工具链、sysroot、Buildroot 配置与所有 BSP 源码，可用于宿主机编译在 RK3588 上运行的程序。
+rkbuild 产出的 Buildroot SDK tarball 内含 aarch64 交叉工具链、sysroot、Buildroot 配置与所有 BSP 源码，可用于宿主机编译在 RK3588 上运行的程序。
+
+Rockchip 官方 BSP 还可产出 Ubuntu 22.04 版 SDK（`ROOTFS=ubuntu`），工具链/glibc 与 jammy 匹配，sysroot 为 Ubuntu 22.04 arm64。详见 [`ubuntu.md`](ubuntu.md)。
 
 ## 产出路径
 
 ```bash
 make sdk
 # → dist/sdk/rk3588-gui-20251009.tar.xz       (rockchip / friendlyarm 流派)
-# → dist/sdk/rk3588-alientek-...tar.xz        (alientek 流派)
+
+make sdk ROOTFS=ubuntu VARIANT=headless
+# → dist/sdk/rk3588-rockchip-ubuntu22.04-headless-20251009-sdk.tar.xz
+
+make sdk VENDOR=alientek
+# → dist/sdk/rk3588-alientek-...tar.xz
 ```
 
 ## 解压与激活
@@ -143,3 +150,36 @@ RUN mkdir -p /opt && \
 WORKDIR /work
 CMD ["/bin/bash", "-c", "source /opt/*/environment-setup && make"]
 ```
+
+## Ubuntu 22.04 SDK
+
+命令：
+
+```bash
+make fetch ROOTFS=ubuntu VARIANT=headless
+make sdk   ROOTFS=ubuntu VARIANT=headless
+```
+
+解压：
+
+```bash
+sudo tar -xJf dist/sdk/rk3588-rockchip-ubuntu22.04-headless-<DATE>-sdk.tar.xz -C /opt/
+cd /opt/rk3588-ubuntu22.04-sdk
+source environment-setup
+
+echo 'int main(){return 0;}' | $CC -x c - -o /tmp/hello
+file /tmp/hello        # ARM aarch64 ELF
+```
+
+与 Buildroot SDK 的差异：
+
+- `$CC` / `$CXX` 是 wrapper，自动带上 `--sysroot=<SDK>/sysroot` 与 Ubuntu 多架构
+  include/lib 路径，不需要手动设置 `CFLAGS`。
+- 目标运行时是 Ubuntu 22.04（glibc 2.35），不是 Buildroot。
+- 提供 `cmake/aarch64-rkbuild-toolchain.cmake`，`source environment-setup` 后可用
+  `$CMAKE_TOOLCHAIN_FILE`。
+- `pkg-config` 已指向 sysroot（`aarch64-rkbuild-linux-gnu-pkg-config`）。
+- `external/` 默认包含 kernel/u-boot-mainline/rkbin/mpp/rknpu2 源码，可用
+  `SDK_INCLUDE_EXTERNAL=0 make sdk ROOTFS=ubuntu` 生成精简 SDK。
+- sysroot 内包含 RKNN runtime（`librknnrt.so` + `/usr/include/rknn`）。
+  GPU `libmali` 与预编译 MPP 不在 Ubuntu 官方源中，需自行编译/安装。

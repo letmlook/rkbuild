@@ -1,0 +1,118 @@
+# ubuntu/packages/headless.list
+# Rockchip Ubuntu 22.04 Headless/服务器默认软件集。
+# 语法：每行一个包，允许行尾注释，空行与 # 开头行忽略。
+# 追加额外包：UBUNTU_EXTRA_PACKAGES="pkg1 pkg2" make build ROOTFS=ubuntu
+
+# ---- 系统基础 ----
+systemd
+systemd-sysv
+dbus
+locales
+tzdata
+sudo
+ca-certificates
+openssh-server
+netplan.io
+network-manager
+chrony
+rsync
+curl
+wget
+vim
+nano
+htop
+tmux
+less
+file
+unzip
+zip
+xz-utils
+zstd
+bzip2
+e2fsprogs
+dosfstools
+parted
+gdisk
+util-linux
+pciutils
+usbutils
+lsof
+iotop
+sysstat
+smartmontools
+lm-sensors
+stress-ng
+
+# ---- 网络 ----
+iproute2
+iptables
+nftables
+bridge-utils
+vlan
+ethtool
+tcpdump
+nmap
+netcat-openbsd
+dnsutils
+iperf3
+wireguard-tools
+ppp
+hostapd
+wpasupplicant
+dnsmasq-base
+
+# ---- 外设 ----
+i2c-tools
+gpiod
+libgpiod2
+can-utils
+
+# ---- 多媒体（软件编解码；硬件 MPP 由 SDK/额外包提供） ----
+gstreamer1.0-tools
+gstreamer1.0-plugins-base
+gstreamer1.0-plugins-good
+gstreamer1.0-plugins-bad
+gstreamer1.0-plugins-ugly
+gstreamer1.0-libav
+ffmpeg
+alsa-utils
+
+# ---- Python / AI 基础 ----
+python3
+python3-pip
+python3-numpy
+python3-opencv
+python3-pil
+python3-venv
+
+# ---- Docker（Ubuntu 发行版包） ----
+docker.io
+docker-compose
+containerd
+runc
+crun
+uidmap
+slirp4netns
+fuse-overlayfs
+apparmor
+apparmor-utils
+
+# ---- 常用运行库 ----
+libcurl4
+libssl3
+libmosquitto1
+libwebsockets16
+libsqlite3-0
+libjansson4
+libcjson1
+libflatbuffers1
+libprotobuf23
+libusb-1.0-0
+libpng16-16
+libjpeg-turbo8
+libwebp7
+libfreetype6
+zlib1g
+libuv1
+libdrm2
+libgbm1

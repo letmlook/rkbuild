@@ -17,6 +17,8 @@ rkbuild 支持三家 RK3588 BSP 提供方。每家有自己的源码组织方式
 - **工具链**: Bootlin `gcc-arm-10.3-2021.07 aarch64`
 - **适用板**: Rock 5B+ / 5C / CM5、NanoPi M6/R6C/R6S、ATK-DLRK3588B 等任何 RK3588 / RK3588S 板
 - **变体**: GUI / Headless 都可用（自定义 defconfig）
+- **Ubuntu 22.04**: ✅ 仅此 vendor 支持（`ROOTFS=ubuntu`），使用 Ubuntu Base + mainline U-Boot，
+  详见 [`ubuntu.md`](ubuntu.md)
 
 ## friendlyarm（友善之臂）
 
@@ -29,6 +31,7 @@ rkbuild 支持三家 RK3588 BSP 提供方。每家有自己的源码组织方式
 - **工具链**: FriendlyElec prebuilts 11.3-aarch64
 - **适用板**: NanoPi M6、NanoPi R6C/R6S、NanoPC-T6、CM3588
 - **变体**: GUI / Headless 都可用
+- **Ubuntu 22.04**: ❌ 暂不支持（`ROOTFS=ubuntu` 仅限 `VENDOR=rockchip`）
 
 ## alientek（正点原子）
 
@@ -57,8 +60,12 @@ export VENDOR=alientek BOARD=atk-dlrk3588B
 make fetch
 make build
 
-# 切回 rockchip
-export VENDOR=rockchip
+# 切到 Ubuntu 22.04（仅 rockchip）
+export VENDOR=rockchip ROOTFS=ubuntu VARIANT=headless
+make fetch && make build && make image && make sdk
+
+# 切回 rockchip Buildroot
+export VENDOR=rockchip ROOTFS=buildroot
 make clean
 make fetch && make defconfig && make build
 ```

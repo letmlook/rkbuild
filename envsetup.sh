@@ -16,6 +16,7 @@ export __RKBUILDSET__=1
 
 # ---- 默认环境变量 ----
 : "${VENDOR:=rockchip}"
+: "${ROOTFS:=buildroot}"
 : "${VARIANT:=gui}"
 : "${BOARD:=rk3588}"
 : "${JOBS:=$(nproc 2>/dev/null || echo 4)}"
@@ -25,7 +26,7 @@ export __RKBUILDSET__=1
 : "${KEEP_CACHE:=1}"
 : "${INIT_SYSTEM:=busybox}"
 
-export VENDOR VARIANT BOARD JOBS OUTPUT SRC_DIR SDFUSE_NONINTERACTIVE KEEP_CACHE INIT_SYSTEM
+export VENDOR ROOTFS VARIANT BOARD JOBS OUTPUT SRC_DIR SDFUSE_NONINTERACTIVE KEEP_CACHE INIT_SYSTEM
 
 # ---- 路径 ----
 export SCRIPTS_DIR="${RKB_ROOT}/scripts"
@@ -47,6 +48,13 @@ alias rkb-cleanall="make -C ${RKB_ROOT} cleanall"
 alias rkb-info="make -C ${RKB_ROOT} info"
 alias rkb-version="make -C ${RKB_ROOT} version"
 alias rkb-help="make -C ${RKB_ROOT} help"
+
+# Ubuntu 22.04（仅 Rockchip 官方）
+alias rkb-ubuntu-fetch="make -C ${RKB_ROOT} fetch ROOTFS=ubuntu"
+alias rkb-ubuntu-defconfig="make -C ${RKB_ROOT} defconfig ROOTFS=ubuntu"
+alias rkb-ubuntu-build="make -C ${RKB_ROOT} build ROOTFS=ubuntu"
+alias rkb-ubuntu-image="make -C ${RKB_ROOT} image ROOTFS=ubuntu"
+alias rkb-ubuntu-sdk="make -C ${RKB_ROOT} sdk ROOTFS=ubuntu"
 
 # ---- 颜色函数 ----
 _rkb_color() {
@@ -79,6 +87,7 @@ _rkb_color bold "rkbuild envsetup 已激活"
 cat <<EOF | sed 's/^/  /'
 项目根    : ${RKB_ROOT}
 厂商      : ${VENDOR}
+根文件系统: ${ROOTFS}
 变体      : ${VARIANT}
 板子      : ${BOARD}
 源码目录  : ${SRC_DIR}
@@ -97,7 +106,15 @@ cat <<EOF | sed 's/^/  /'
   rkb-info         显示当前配置
   rkb-help         帮助
 
+Ubuntu 22.04（仅 Rockchip 官方）：
+  rkb-ubuntu-fetch && rkb-ubuntu-build && rkb-ubuntu-image
+  rkb-ubuntu-sdk
+
 切换厂商/变体（export 后再 rkb-*）：
   export VENDOR=friendlyarm VARIANT=headless
   rkb-fetch && rkb-defconfig && rkb-build
+
+切换根文件系统：
+  export ROOTFS=buildroot   # 默认
+  export ROOTFS=ubuntu      # 仅 VENDOR=rockchip
 EOF

@@ -13,7 +13,7 @@ source "${SCRIPT_DIR}/common.sh"
 
 rkb_banner "cleanall"
 
-rkb_warn "将删除 dist/src/* dist/images/* dist/sdk/* dist/rk3588-* dist/overlays-applied/"
+rkb_warn "将删除 dist/src/* dist/images/* dist/sdk/* dist/ubuntu/* dist/rk3588-* dist/overlays-applied/"
 echo -n "确认？[y/N] "
 read -r ans
 case "${ans,,}" in
@@ -24,6 +24,7 @@ esac
 rm -rf "${OUTPUT}/src"           2>/dev/null || true
 rm -rf "${OUTPUT}/images"        2>/dev/null || true
 rm -rf "${OUTPUT}/sdk"           2>/dev/null || true
+rm -rf "${OUTPUT}/ubuntu"        2>/dev/null || true
 rm -rf "${OUTPUT}/overlays-applied" 2>/dev/null || true
 # 保留 dist/dl 缓存
 

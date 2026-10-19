@@ -61,6 +61,19 @@ HOST_PKGS_APT=(
     dosfstools
     btrfs-progs
     squashfs-tools
+    parted
+    gdisk
+    mtools
+    kmod
+    # Ubuntu 22.04 根文件系统（qemu-user chroot + apt）
+    qemu-user-static
+    binfmt-support
+    # U-Boot 构建
+    python3-dev
+    python3-pyelftools
+    python3-setuptools
+    swig
+    libgnutls28-dev
     # 调试
     gdb
     # 网络工具
@@ -97,6 +110,20 @@ rkb_require_cmd curl
 rkb_require_cmd dtc
 rkb_require_cmd mkfs.ext4
 rkb_require_cmd mkfs.vfat
+rkb_require_cmd mcopy
+rkb_require_cmd mmd
+rkb_require_cmd parted
+rkb_require_cmd depmod
+
+# qemu-user（非 aarch64 主机构建 Ubuntu 22.04 rootfs 时需要）
+if [[ "$(uname -m)" != "aarch64" && "$(uname -m)" != "arm64" ]]; then
+    rkb_require_cmd qemu-aarch64-static
+    if [[ -e /proc/sys/fs/binfmt_misc/qemu-aarch64 ]]; then
+        rkb_ok "qemu-aarch64 binfmt 已注册（Ubuntu chroot 可用）"
+    else
+        rkb_warn "qemu-aarch64 binfmt 未注册；可执行：sudo systemctl restart systemd-binfmt"
+    fi
+fi
 
 # python3 必要
 python3 -c 'import sys; assert sys.version_info >= (3, 7)' \

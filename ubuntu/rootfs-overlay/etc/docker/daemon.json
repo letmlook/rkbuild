@@ -1,0 +1,36 @@
+{
+  "storage-driver": "overlay2",
+  "iptables": true,
+  "ip-forward": true,
+  "ip-masq": true,
+  "ipv6": false,
+  "live-restore": true,
+  "userland-proxy": false,
+  "exec-opts": ["native.cgroupdriver=systemd"],
+  "log-driver": "json-file",
+  "log-opts": {
+    "max-size": "10m",
+    "max-file": "3"
+  },
+  "default-runtime": "runc",
+  "runtimes": {
+    "crun": {
+      "path": "/usr/bin/crun"
+    },
+    "runc": {
+      "path": "/usr/sbin/runc"
+    }
+  },
+  "features": {
+    "buildkit": true
+  },
+  "experimental": true,
+  "metrics-addr": "127.0.0.1:9323",
+  "default-ulimits": {
+    "nofile": {
+      "Name": "nofile",
+      "Hard": 65535,
+      "Soft": 65535
+    }
+  }
+}

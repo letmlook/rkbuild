@@ -138,3 +138,61 @@ make build    # 继续
 **唯一阻塞**是 upstream m4 1.4.19 + GCC 15 不兼容，与 rkbuild 设计无关。
 
 需要用户介入后即可继续 `make build` → `make sdk` → `make image`。
+---
+
+# Rockchip Ubuntu 22.04 本地验证（2026-10-19）
+
+宿主：Ubuntu 22.04 x86_64，64 核；QEMU user-mode（aarch64 binfmt）+ FriendlyARM GCC 11.3。
+
+## 执行
+
+```bash
+make fetch ROOTFS=ubuntu VARIANT=headless
+UBUNTU_ROOTFS_REUSE=1 make build ROOTFS=ubuntu VARIANT=headless
+make image ROOTFS=ubuntu VARIANT=headless
+make sdk   ROOTFS=ubuntu VARIANT=headless
+```
+
+## 结果
+
+| 阶段 | 状态 | 产物 / 证据 |
+|---|---|---|
+| fetch | ✅ | kernel 1.8G、rkbin、mainline U-Boot v2025.01、mpp、rknpu2、Ubuntu Base 22.04.5、GCC 11.3 |
+| kernel | ✅ | `Image` 43MB，DTB `rk3588-evb1-lp4-v10-linux.dtb`，160 个 `.ko`，`depmod` 成功 |
+| rootfs | ✅ | Ubuntu 22.04.5 headless，约 1.5GB 安装内容；systemd / Docker / RKNN / SSH / 串口 getty 已配置 |
+| U-Boot | ✅ | `u-boot.itb` 含 U-Boot + BL31 + DTB；`u-boot-rockchip.bin` 9.0MB |
+| image | ✅ | GPT：boot(FAT32)@16MiB + rootfs(ext4,PARTLABEL=rootfs)@144MiB；xz 339MB |
+| SDK | ✅ | 698MB；C/C++/CMake/pkg-config 自检通过；`external/{kernel,u-boot-mainline,rkbin,mpp,rknpu2}` |
+
+关键验证命令：
+
+```bash
+sha256sum -c dist/images/*.sha256
+sha256sum -c dist/sdk/*.sha256
+
+# SD 镜像内 U-Boot 原始区与分区
+dd if=<decompressed.img> ... | cmp - dist/ubuntu/images/u-boot-rockchip.bin
+parted -s <decompressed.img> unit MiB print
+
+# SDK
+source <sdk>/environment-setup
+echo 'int main(){return 0;}' | $CC -x c - -o /tmp/hello
+file /tmp/hello       # ARM aarch64
+$PKG_CONFIG --cflags --libs zlib
+cmake -B build -DCMAKE_TOOLCHAIN_FILE=$CMAKE_TOOLCHAIN_FILE
+```
+
+## 修复记录（验证过程中）
+
+- `systemd-timesyncd` 与 `chrony` 冲突 → 从 headless 包清单移除 timesyncd。
+- U-Boot `pylibfdt` 需要宿主 `Python.h` → init-env 增加 `python3-dev`、`python3-pyelftools`、`swig`。
+- `mkfs.vfat` 不支持 `-q` → 去掉该参数。
+- `parted` 的分区结束位置不能等于设备最后 1MiB → rootfs 分区结束用 `100%`。
+- 部分 e2fsprogs 不支持 `^orphan_file` → mke2fs 参数逐级回退。
+- `modules_install` 生成的 `build/source` 宿主机符号链接 → 安装后删除。
+
+## 未验证
+
+没有 RK3588 实机，未做上电启动、串口/Docker/RKNN 真机运行验证；镜像布局与启动链
+（BootROM → idbloader → U-Boot bootstd/extlinux → kernel → Ubuntu rootfs）已按
+mainline U-Boot 文档与 radxa 布局交叉检查。

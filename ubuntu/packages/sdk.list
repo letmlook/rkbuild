@@ -1,0 +1,77 @@
+# ubuntu/packages/sdk.list
+# Rockchip Ubuntu 22.04 交叉 SDK 的 sysroot 软件包（-dev 头文件/库）。
+# 运行时库会由依赖自动安装；不需要 docker/desktop 等运行环境。
+# 每行一个包，允许行尾注释。
+
+# ---- libc / C++ / 内核头 ----
+libc6-dev
+libstdc++-11-dev
+linux-libc-dev
+pkg-config
+
+# ---- 基础库 ----
+zlib1g-dev
+libssl-dev
+libcurl4-openssl-dev
+libusb-1.0-0-dev
+libudev-dev
+libsystemd-dev
+libdbus-1-dev
+libexpat1-dev
+libncurses-dev
+libreadline-dev
+libxml2-dev
+libyaml-dev
+libjsoncpp-dev
+nlohmann-json3-dev
+libeigen3-dev
+libfmt-dev
+libspdlog-dev
+
+# ---- 外设 / 总线 ----
+libgpiod-dev
+libi2c-dev
+libmodbus-dev
+libasound2-dev
+libinput-dev
+
+# ---- 图形 / 显示 ----
+libdrm-dev
+libgbm-dev
+libegl1-mesa-dev
+libgles2-mesa-dev
+libx11-dev
+libxext-dev
+libxkbcommon-dev
+libwayland-dev
+libfontconfig1-dev
+libfreetype6-dev
+libpng-dev
+libjpeg-dev
+libwebp-dev
+
+# ---- 多媒体 ----
+libgstreamer1.0-dev
+libgstreamer-plugins-base1.0-dev
+libgstreamer-plugins-bad1.0-dev
+libavcodec-dev
+libavformat-dev
+libavutil-dev
+libswscale-dev
+
+# ---- AI / 视觉 ----
+libopencv-dev
+python3-dev
+libpython3.10-dev
+python3-numpy
+
+# ---- 数据 / 网络 / 序列化 ----
+libsqlite3-dev
+libmosquitto-dev
+libwebsockets-dev
+libuv1-dev
+libjansson-dev
+libcjson-dev
+libflatbuffers-dev
+libprotobuf-dev
+libprotobuf-c-dev

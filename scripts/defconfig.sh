@@ -13,6 +13,14 @@ export RKB_ROOT
 # shellcheck source=./common.sh
 source "${SCRIPT_DIR}/common.sh"
 
+# Ubuntu rootfs 不使用 Buildroot defconfig；保留目标以维持 make fetch/defconfig/build 流程
+if [[ "$ROOTFS" == "ubuntu" ]]; then
+    [[ "$VENDOR" == "rockchip" ]] \
+        || rkb_die "ROOTFS=ubuntu 目前只支持 VENDOR=rockchip（官方）"
+    rkb_log info "Ubuntu 流程不使用 defconfig；直接 'make build ROOTFS=ubuntu' 即可。"
+    exit 0
+fi
+
 # alientek 流派不走 defconfig；提示用户直接 cd SDK
 if [[ "$VENDOR" == "alientek" ]]; then
     rkb_log info "alientek 流派无 defconfig；请 'cd dist/src/atk-sdk && ./build.sh $BOARD'"

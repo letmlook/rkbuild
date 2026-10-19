@@ -13,6 +13,13 @@ export RKB_ROOT
 # shellcheck source=./common.sh
 source "${SCRIPT_DIR}/common.sh"
 
+# Ubuntu 22.04 目前只支持 Rockchip 官方 BSP
+if [[ "$ROOTFS" == "ubuntu" ]]; then
+    [[ "$VENDOR" == "rockchip" ]] \
+        || rkb_die "ROOTFS=ubuntu 目前只支持 VENDOR=rockchip（官方），不支持 VENDOR='$VENDOR'"
+    exec bash "${SCRIPTS_DIR}/fetch-ubuntu.sh"
+fi
+
 case "$VENDOR" in
     rockchip)
         # shellcheck disable=SC1090

@@ -83,3 +83,18 @@ make build
 `alientek-overlay/patches/atk-dlrk3588B-headless.patch` 默认是占位模板；
 首次 fetch 后请根据 SDK 实际 defconfig 用 `diff -u` 生成真实可用版本（见
 `alientek-overlay/patches/README.md`）。
+
+## Ubuntu 22.04 的 GUI / Headless
+
+`ROOTFS=ubuntu` 沿用同一套 `VARIANT`：
+
+- `VARIANT=headless`：Ubuntu server 基础 + Docker + Python/GStreamer（推荐）
+- `VARIANT=gui`：在 headless 基础上追加 Xfce（`xubuntu-core`）
+
+```bash
+make build ROOTFS=ubuntu VARIANT=headless
+make build ROOTFS=ubuntu VARIANT=gui
+```
+
+Ubuntu 官方源不含 Rockchip `libmali`，因此 GUI 默认软件渲染。完整说明见
+[`ubuntu.md`](ubuntu.md)。

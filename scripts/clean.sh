@@ -10,7 +10,20 @@ export RKB_ROOT
 # shellcheck source=./common.sh
 source "${SCRIPT_DIR}/common.sh"
 
-rkb_banner "clean  VENDOR=$VENDOR  VARIANT=$VARIANT"
+rkb_banner "clean  VENDOR=$VENDOR  VARIANT=$VARIANT  ROOTFS=$ROOTFS"
+
+if [[ "$ROOTFS" == "ubuntu" ]]; then
+    rkb_log info "清理 Ubuntu 构建产物（保留 dist/src 源码与 dist/dl 缓存）"
+    rm -rf "${UBUNTU_WORK}/rootfs" \
+           "${UBUNTU_WORK}/kernel" \
+           "${UBUNTU_WORK}/u-boot" \
+           "${UBUNTU_WORK}/images" \
+           "${UBUNTU_WORK}/boot-partition" \
+           "${UBUNTU_WORK}/rk3588-ubuntu22.04-sdk" \
+           "${UBUNTU_WORK}/.rootfs-ready" 2>/dev/null || true
+    rkb_ok "Ubuntu incremental clean 完成"
+    exit 0
+fi
 
 case "$VENDOR" in
     alientek)

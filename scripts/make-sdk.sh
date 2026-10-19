@@ -18,6 +18,10 @@ export RKB_ROOT
 # shellcheck source=./common.sh
 source "${SCRIPT_DIR}/common.sh"
 
+if [[ "$ROOTFS" == "ubuntu" ]]; then
+    exec bash "${SCRIPTS_DIR}/ubuntu-sdk.sh"
+fi
+
 rkb_banner "make-sdk  VENDOR=$VENDOR  VARIANT=$VARIANT"
 
 SDK_OUT="${OUTPUT}/sdk"

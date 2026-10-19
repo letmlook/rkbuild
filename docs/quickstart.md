@@ -112,6 +112,27 @@ source environment-setup
 echo 'int main(){return 0;}' | $CC -x c -
 ```
 
+## Ubuntu 22.04 流程（可选，仅 Rockchip 官方）
+
+```bash
+sudo make init
+make fetch ROOTFS=ubuntu VARIANT=headless
+make build ROOTFS=ubuntu VARIANT=headless
+make image ROOTFS=ubuntu VARIANT=headless
+make sdk   ROOTFS=ubuntu VARIANT=headless
+```
+
+产出：
+
+```
+dist/images/rk3588-ubuntu-headless-sd-<DATE>.img.xz
+dist/sdk/rk3588-rockchip-ubuntu22.04-headless-<DATE>-sdk.tar.xz
+```
+
+默认账号 `rkbuild/rkbuild`、root 密码 `rkbuild`；串口 `ttyS2` 1500000。
+完整说明（软件包定制、板级适配、启动布局、SDK 用法）见
+[`ubuntu.md`](ubuntu.md)。
+
 ## 常用别名
 
 `source ./envsetup.sh` 后可用：

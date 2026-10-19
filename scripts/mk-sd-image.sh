@@ -15,6 +15,10 @@ export RKB_ROOT
 # shellcheck source=./common.sh
 source "${SCRIPT_DIR}/common.sh"
 
+if [[ "$ROOTFS" == "ubuntu" ]]; then
+    exec bash "${SCRIPTS_DIR}/ubuntu-image.sh"
+fi
+
 rkb_banner "mk-sd-image  VENDOR=$VENDOR  VARIANT=$VARIANT"
 
 IMG_OUT="${OUTPUT}/images"

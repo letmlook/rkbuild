@@ -134,3 +134,30 @@ overlay/defconfig/
 ## 8. 不在本期范围
 
 - Docker Registry 服务端、k8s/k3s、Podman/Lima/Finch、rkdeveloptool 自动烧写
+
+## 9. v6.1 扩展：Rockchip Ubuntu 22.04（仅官方）
+
+在原有 Buildroot 流程之外新增独立维度 `ROOTFS=ubuntu`：
+
+- 根文件系统：Ubuntu 官方 `ubuntu-base-22.04.5-base-arm64.tar.gz`
+  - x86_64 宿主用 `qemu-aarch64-static` + chroot + apt 安装（`policy-rc.d` 阻止服务启动）
+  - 软件包清单：`ubuntu/packages/headless.list`、`gui.list`、`sdk.list`
+- 内核：`rockchip-linux/kernel` @ `develop-6.1` + `rockchip_linux_defconfig`
+  - 追加 `ubuntu/kernel-fragment.config` 与既有 Docker kernel fragment
+  - 编译 `Image`、`dtbs`、`modules`，模块安装进 rootfs
+- 启动链：`rkbin` TPL/BL31 + mainline U-Boot `generic-rk3588_defconfig`
+  - bootstd + extlinux；FAT boot 分区 + ext4 rootfs（PARTLABEL=rootfs 挂载）
+- 镜像：GPT，U-Boot@32KiB、boot@16MiB、rootfs@144MiB，输出 `.img.xz`
+- 交叉 SDK：FriendlyARM GCC 11.3（glibc 2.35）+ Ubuntu 22.04 arm64 sysroot
+  - wrapper 自动 `--sysroot`、CMake toolchain、pkg-config、可选 external 源码
+- 板级配置：`ubuntu/boards/{rk3588,rk3588s}.ini`，支持 `KERNEL_DTB` / `UBOOT_DEFCONFIG` 环境变量覆盖
+- 限制：仅 `VENDOR=rockchip`；FriendlyElec / 正点原子不提供 Ubuntu 流程
+
+文档：`docs/ubuntu.md`。验收：
+
+```bash
+make fetch ROOTFS=ubuntu VARIANT=headless
+make build ROOTFS=ubuntu VARIANT=headless
+make image ROOTFS=ubuntu VARIANT=headless
+make sdk   ROOTFS=ubuntu VARIANT=headless
+```

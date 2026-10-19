@@ -11,6 +11,10 @@ export RKB_ROOT
 # shellcheck source=./common.sh
 source "${SCRIPT_DIR}/common.sh"
 
+if [[ "$ROOTFS" == "ubuntu" ]]; then
+    exec bash "${SCRIPTS_DIR}/ubuntu-build.sh"
+fi
+
 rkb_banner "make-image  VENDOR=$VENDOR  VARIANT=$VARIANT  BOARD=$BOARD"
 
 case "$VENDOR" in

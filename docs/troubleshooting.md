@@ -1,5 +1,32 @@
 # 常见问题
 
+## Ubuntu 22.04 流程
+
+### "qemu-aarch64 binfmt 未注册"
+
+```bash
+sudo systemctl restart systemd-binfmt
+# 或
+sudo update-binfmts --enable qemu-aarch64
+```
+
+### apt 在 chroot 中失败 / 卡住
+
+- 检查 `UBUNTU_PORTS_MIRROR` 是否可达；国内可换成清华/中科大 ubuntu-ports。
+- 代理环境变量会传入 chroot（`http_proxy/https_proxy`）。
+- 首次构建建议 `VARIANT=headless`，GUI 会额外安装 Xfce，耗时长很多。
+
+### 找不到 DTB / U-Boot defconfig
+
+`make build ROOTFS=ubuntu` 会列出现有 DTB；U-Boot defconfig 需存在于
+`dist/src/u-boot-mainline/configs/`。用 `KERNEL_DTB=... UBOOT_DEFCONFIG=...` 覆盖，
+详见 [`ubuntu.md`](ubuntu.md)。
+
+### 镜像写入后无串口输出
+
+默认串口 `ttyS2` 1500000；换 `CONSOLE=ttyS0,1500000n8` 等。还要确认
+`rkbin` TPL 与板子 DDR 匹配。
+
 ## 编译阶段
 
 ### make defconfig 提示 "configs/<board>_defconfig not found"

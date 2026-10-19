@@ -156,3 +156,23 @@ esac
 ```bash
 make BOARD=rk3576 defconfig
 ```
+
+## 场景 E：Ubuntu 22.04 新板（仅 rockchip）
+
+Ubuntu 流程不使用 Buildroot defconfig，而是 `ubuntu/boards/<board>.ini`：
+
+1. 复制 `ubuntu/boards/rk3588.ini` 为 `ubuntu/boards/<board>.ini`
+2. 设置 `KERNEL_DEFCONFIG`、`KERNEL_DTB`（相对 `arch/arm64/boot/dts/rockchip/` 的文件名）、
+   `UBOOT_DEFCONFIG`、`UBUNTU_UBOOT_TPL`、`UBUNTU_UBOOT_BL31`、`CONSOLE`
+3. 确认 `dist/src/kernel` 中存在该 DTB，`dist/src/u-boot-mainline/configs/` 中存在该
+   U-Boot defconfig
+4. 构建：
+
+```bash
+make fetch ROOTFS=ubuntu BOARD=<board>
+make build ROOTFS=ubuntu BOARD=<board>
+make image ROOTFS=ubuntu BOARD=<board>
+```
+
+临时测试也可以不建文件，直接用环境变量覆盖 `KERNEL_DTB` / `UBOOT_DEFCONFIG`。
+详见 [`ubuntu.md`](ubuntu.md)。

@@ -1,0 +1,52 @@
+#!/bin/sh
+# /usr/local/bin/rkbuild-info —— 显示 rkbuild Ubuntu 系统 / 硬件 / 容器信息
+
+RKBUILD_VERSION="$(cat /etc/rkbuild-release 2>/dev/null || echo unknown)"
+KERNEL="$(uname -r)"
+ARCH="$(uname -m)"
+SOC="$(tr -d '\0' < /sys/firmware/devicetree/base/model 2>/dev/null || echo unknown)"
+
+cat <<EOF
+========== rkbuild System Info ==========
+rkbuild release   : ${RKBUILD_VERSION}
+SoC               : ${SOC}
+Arch              : ${ARCH}
+Kernel            : ${KERNEL}
+OS                : $(. /etc/os-release 2>/dev/null && echo "${PRETTY_NAME:-unknown}")
+EOF
+
+echo
+echo "--- Docker ---"
+if command -v docker >/dev/null 2>&1; then
+    echo "docker cli        : $(docker --version 2>/dev/null)"
+    if [ -S /var/run/docker.sock ]; then
+        docker info 2>/dev/null | grep -E '^(Storage Driver|Server Version|Cgroup Driver|Default Runtime|Runtimes)' | sed 's/^/  /'
+    else
+        echo "docker daemon     : not running (systemctl start docker)"
+    fi
+else
+    echo "docker cli        : not installed"
+fi
+
+echo
+echo "--- NPU / 多媒体 ---"
+if ldconfig -p 2>/dev/null | grep -q 'librknnrt\.so'; then
+    echo "  RKNN runtime    : $(ldconfig -p | grep 'librknnrt\.so' | head -1 | awk '{print $NF}')"
+else
+    echo "  RKNN runtime    : not installed"
+fi
+if [ -e /dev/dri/renderD129 ] || [ -e /dev/dri/rknpu ]; then
+    echo "  NPU device      : present"
+else
+    echo "  NPU device      : not detected"
+fi
+if command -v gst-launch-1.0 >/dev/null 2>&1; then
+    echo "  GStreamer       : $(gst-launch-1.0 --version 2>/dev/null | head -1)"
+fi
+
+echo
+echo "--- Python ---"
+command -v python3 >/dev/null 2>&1 && python3 --version | sed 's/^/  /'
+
+echo
+echo "========================================"

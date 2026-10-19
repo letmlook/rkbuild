@@ -1,0 +1,12 @@
+# /etc/netplan/01-rkbuild.yaml
+# 默认 eth0/eth1 DHCP；WiFi 请用 nmcli 配置。
+network:
+  version: 2
+  renderer: NetworkManager
+  ethernets:
+    eth0:
+      dhcp4: true
+      optional: true
+    eth1:
+      dhcp4: true
+      optional: true

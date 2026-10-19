@@ -36,14 +36,15 @@ set -o pipefail
 : "${KEEP_CACHE:=1}"
 : "${SDFUSE_NONINTERACTIVE:=y}"
 : "${INIT_SYSTEM:=busybox}"
+: "${ROOTFS:=buildroot}"
 
 export SCRIPTS_DIR VENDORS_DIR OVERLAY_DIR ALIEN_DIR DOCS_DIR \
        VENDOR VARIANT BOARD JOBS OUTPUT SRC_DIR KEEP_CACHE \
-       SDFUSE_NONINTERACTIVE INIT_SYSTEM
+       SDFUSE_NONINTERACTIVE INIT_SYSTEM ROOTFS
 
 # ---- 加载 lib ----
 _LIB_DIR="${SCRIPTS_DIR}/lib"
-for _lib in log os git alientek; do
+for _lib in log os git alientek ubuntu; do
     if [[ -f "${_LIB_DIR}/${_lib}.sh" ]]; then
         # shellcheck disable=SC1090
         source "${_LIB_DIR}/${_lib}.sh"

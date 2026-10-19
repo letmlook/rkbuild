@@ -1,0 +1,22 @@
+# ubuntu/packages/gui.list
+# Rockchip Ubuntu 22.04 GUI 默认软件集（在 headless 基础上追加）。
+#
+# 说明：使用轻量 Xfce（xubuntu-core），不使用 ubuntu-desktop-minimal，
+# 避免在 RK3588 上引入体积巨大且依赖 3D 加速的 GNOME 会话。
+# 当前 Rockchip 6.1 BSP 内核没有 mainline Panthor 驱动，GPU 加速需另装
+# vendor libmali（不在 Ubuntu 官方源中），因此默认使用软件渲染/fbdev。
+
+# 注：scripts/lib/ubuntu.sh 会先加载 headless.list，再加载本文件。
+#
+# ---- 显示 / 桌面 ----
+xubuntu-core
+xserver-xorg
+xserver-xorg-video-fbdev
+mesa-utils
+x11-apps
+x11-utils
+fonts-dejavu-core
+fonts-noto-cjk
+
+# ---- 远程桌面（可选，便于无显示器调试） ----
+xrdp

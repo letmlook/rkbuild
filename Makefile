@@ -7,6 +7,7 @@ SHELL := /bin/bash
 # ============== 可配置变量 ==============
 # 任何带空格的内容会被理解为变量的一部分（Makefile 不支持行内注释），故只写纯值
 VENDOR       ?= rockchip
+ROOTFS       ?= buildroot
 VARIANT      ?= gui
 BOARD        ?= rk3588
 JOBS         ?= $(shell nproc)
@@ -35,7 +36,14 @@ $(error VENDOR='$(VENDOR)' 未找到 $(VENDOR_INI)；可选：rockchip | friendl
 endif
 
 # defconfig 名（不同 vendor × variant 组合）
-ifeq ($(VENDOR),alientek)
+ifeq ($(ROOTFS),ubuntu)
+ifeq ($(VENDOR),rockchip)
+DEFCONFIG    :=
+BUILD_CMD    := ubuntu-build
+else
+$(error ROOTFS=ubuntu 目前只支持 VENDOR=rockchip（官方），不支持 VENDOR='$(VENDOR)')
+endif
+else ifeq ($(VENDOR),alientek)
 DEFCONFIG    :=
 BUILD_CMD    := ./build.sh
 else
@@ -63,7 +71,7 @@ endif
 # ============== 帮助 ==============
 .PHONY: help
 help: ## 显示本帮助
-	@awk 'BEGIN{FS=":.*##"; printf "$(C_BOLD)用法：$(C_RESET) make [VENDOR=...] [VARIANT=...] <目标>\n\n"} \
+	@awk 'BEGIN{FS=":.*##"; printf "$(C_BOLD)用法：$(C_RESET) make [VENDOR=...] [ROOTFS=buildroot|ubuntu] [VARIANT=...] <目标>\n\n"} \
 		/^[a-zA-Z_-]+:.*##/{printf "  $(C_GREEN)%-12s$(C_RESET) %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
 # ============== 顶层目标 ==============
@@ -72,22 +80,22 @@ help: ## 显示本帮助
 init: ## 安装编译依赖（apt-get install）
 	@bash $(SCRIPTS_DIR)/init-env.sh
 
-fetch: ## 按 VENDOR 拉源码到 $(SRC_DIR)
+fetch: ## 按 VENDOR/ROOTFS 拉取源码
 	@bash $(SCRIPTS_DIR)/fetch-source.sh
 
-defconfig: ## 应用 defconfig（生成 .config）
+defconfig: ## 应用 defconfig（Ubuntu 流程为空操作）
 	@bash $(SCRIPTS_DIR)/defconfig.sh
 
 config menu: ## 打开 menuconfig
 	@bash $(SCRIPTS_DIR)/menuconfig.sh
 
-build: ## 编译镜像（rootfs + kernel + uboot）
+build: ## 编译镜像（Buildroot 或 Ubuntu 22.04）
 	@bash $(SCRIPTS_DIR)/make-image.sh
 
 image: ## 生成可烧写 SD 卡镜像
 	@bash $(SCRIPTS_DIR)/mk-sd-image.sh
 
-sdk: ## 产出交叉 SDK tarball
+sdk: ## 产出交叉 SDK tarball（Buildroot 或 Ubuntu 22.04）
 	@bash $(SCRIPTS_DIR)/make-sdk.sh
 
 clean: ## 增量清理（保留 dl 缓存）
@@ -101,12 +109,14 @@ version: ## 显示版本
 
 info: ## 显示当前配置
 	@echo "VENDOR       = $(VENDOR)"
+	@echo "ROOTFS       = $(ROOTFS)"
 	@echo "VARIANT      = $(VARIANT)"
 	@echo "BOARD        = $(BOARD)"
 	@echo "DEFCONFIG    = $(DEFCONFIG)"
 	@echo "JOBS         = $(JOBS)"
 	@echo "OUTPUT       = $(OUTPUT)"
 	@echo "SRC_DIR      = $(SRC_DIR)"
+	@echo "UBUNTU_WORK  = $(OUTPUT)/ubuntu"
 	@echo "VENDOR_INI   = $(VENDOR_INI)"
 	@echo "BUILD_CMD    = $(BUILD_CMD)"
 	@echo "DATE         = $(DATE)"
